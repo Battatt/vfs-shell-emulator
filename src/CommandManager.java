@@ -1,8 +1,49 @@
+import java.io.File;
+import java.util.Arrays;
+import java.util.Scanner;
+
 public class CommandManager {
     private final ConsoleUI ui;
+    private boolean isScriptMode = false;
 
     CommandManager(ConsoleUI ui) {
         this.ui = ui;
+    }
+
+    private void setScriptMode(boolean scriptMode) {
+        isScriptMode = scriptMode;
+    }
+
+    public void executeScript(String scriptPath) throws EmulatorException {
+        setScriptMode(true);
+        File scriptFile = new File(scriptPath);
+        if (!scriptFile.exists() || !scriptFile.isFile()) {
+            throw new EmulatorException("Script file does not exist: " + scriptPath);
+        }
+        try {
+            boolean running = true;
+            Scanner scriptScanner = new Scanner(scriptFile);
+            while (scriptScanner.hasNextLine() && running) {
+                String line = scriptScanner.nextLine();
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+
+                String[] input = line.split("\\s+");
+
+                ui.printPrompt("vfs$ "); // ИЗМЕНИТЬ!
+                ui.showMessage(line);
+
+                String command = input[0];
+                String[] args = Arrays.copyOfRange(input, 1, input.length);
+
+                running = executeCommand(command, args);
+            }
+        } catch (Exception e) {
+            throw new EmulatorException("Error while reading script file: " + scriptPath);
+        } finally {
+            setScriptMode(false);
+        }
     }
 
     public boolean executeCommand(String command, String[] args) {
@@ -26,7 +67,7 @@ public class CommandManager {
             }
         } catch (EmulatorException exception) {
             ui.showError(exception.getMessage());
-            return true;
+            return !isScriptMode;
         }
     }
 
@@ -34,12 +75,16 @@ public class CommandManager {
         if (args.length > 0) {
             throw new EmulatorException("ls: too many arguments");
         }
+
         ui.showMessage("ls executed");
     }
 
     private void handleCD(String[] args) throws EmulatorException {
         if (args.length != 1) {
             throw new EmulatorException("cd: wrong number of arguments");
+        }
+        for (String arg : args) {
+            ui.showMessage("cd args:" + arg);
         }
         ui.showMessage("cd executed");
     }

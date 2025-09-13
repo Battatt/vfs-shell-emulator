@@ -1,0 +1,5 @@
+help
+cd hello
+ls
+help
+ls hello
