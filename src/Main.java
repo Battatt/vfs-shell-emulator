@@ -25,7 +25,7 @@ public class Main {
         System.out.println();
 
 
-        VFSEmulator vfs = new VFSEmulator(vfsPath);
+        ConsoleEmulator vfs = new ConsoleEmulator(vfsPath);
         if (scriptPath != null) {
             vfs.executeScript(scriptPath);
         }

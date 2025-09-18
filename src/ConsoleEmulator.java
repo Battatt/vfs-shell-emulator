@@ -1,7 +1,7 @@
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class VFSEmulator {
+public class ConsoleEmulator {
     private final Scanner sc;
     private boolean isRunning;
     private final CommandManager commandManager;
@@ -9,7 +9,7 @@ public class VFSEmulator {
     private final String vfsPath;
 
 
-    public VFSEmulator(String vfsPath) {
+    public ConsoleEmulator(String vfsPath) {
         this.vfsPath = vfsPath;
         sc = new Scanner(System.in);
         isRunning = false;
@@ -36,7 +36,7 @@ public class VFSEmulator {
         isRunning = true;
         welcome();
         while (isRunning) {
-            ui.printPrompt("vfs$ "); // ИЗМЕНИТЬ
+            ui.printPrompt("vfs$ "); // ИЗМЕНИТЬ НА ПУТЬ К ВИРТУАЛКЕ
 
             String[] input = sc.nextLine().split("\\s+");
             if (input.length == 0 || input[0].isEmpty()) continue;

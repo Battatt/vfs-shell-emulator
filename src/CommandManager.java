@@ -62,6 +62,9 @@ public class CommandManager {
                 case "help":
                     handleHelp(args);
                     return true;
+                case "hello":
+                    handleHelloCat(args);
+                    return true;
                 default:
                     throw new EmulatorException(command + ": command not found");
             }
@@ -105,7 +108,12 @@ public class CommandManager {
         ui.showMessage("  ls     - List directory contents (заглушка)");
         ui.showMessage("  cd     - Change directory (заглушка)");
         ui.showMessage("  exit   - Exit the emulator");
-        ui.showMessage("  help   - Show this help message");
-        ui.showMessage("");
+        ui.showMessage("  help   - Show this help message\n");
+    }
+
+    private void handleHelloCat(String[] args) {
+        ui.showMessage("  /\\_/\\");
+        ui.showMessage(" ( o.o )");
+        ui.showMessage("  > ^ <\n");
     }
 }
