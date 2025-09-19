@@ -1,13 +1,21 @@
+import filesystem.PathResolver;
+import filesystem.VFS;
+import filesystem.VFSDirectory;
+import filesystem.VFSNode;
+import filesystem.exceptions.VFSException;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
 
 public class CommandManager {
     private final ConsoleUI ui;
+    private final VFS vfs;
     private boolean isScriptMode = false;
 
-    CommandManager(ConsoleUI ui) {
+    CommandManager(ConsoleUI ui, VFS vfs) {
         this.ui = ui;
+        this.vfs = vfs;
     }
 
     private void setScriptMode(boolean scriptMode) {
@@ -41,7 +49,8 @@ public class CommandManager {
             }
         } catch (Exception e) {
             throw new EmulatorException("Error while reading script file: " + scriptPath);
-        } finally {
+        }
+        finally {
             setScriptMode(false);
         }
     }
@@ -65,31 +74,49 @@ public class CommandManager {
                 case "hello":
                     handleHelloCat(args);
                     return true;
+                case "pwd":
+                    handlePWD(args);
+                    return true;
+                case "date":
+                    handleDATE(args);
+                    return true;
+                case "clear":
+                    handleCLEAR(args);
+                    return true;
                 default:
                     throw new EmulatorException(command + ": command not found");
             }
-        } catch (EmulatorException exception) {
+        } catch (EmulatorException | VFSException exception) {
             ui.showError(exception.getMessage());
             return !isScriptMode;
         }
     }
 
-    private void handleLS(String[] args) throws EmulatorException {
+    private void handleLS(String[] args) throws EmulatorException, VFSException {
+        VFSDirectory targetDir = vfs.getCurrentDirectory();
+
         if (args.length > 0) {
-            throw new EmulatorException("ls: too many arguments");
+            VFSNode node = PathResolver.resolvePath(vfs, args[0]);
+            if (!node.isDirectory()) {
+                throw new EmulatorException(args[0] + " is not a directory");
+            }
+            targetDir = (VFSDirectory) node;
+        }
+        for (VFSNode child: targetDir.getChildren().values()) {
+            ui.showMessage(child.getInfo());
         }
 
-        ui.showMessage("ls executed");
     }
 
-    private void handleCD(String[] args) throws EmulatorException {
+    private void handleCD(String[] args) throws EmulatorException, VFSException {
         if (args.length != 1) {
             throw new EmulatorException("cd: wrong number of arguments");
         }
-        for (String arg : args) {
-            ui.showMessage("cd args:" + arg);
+        VFSNode node = PathResolver.resolvePath(vfs, args[0]);
+        if (!node.isDirectory()) {
+            throw new EmulatorException(args[0] + " is not a directory");
         }
-        ui.showMessage("cd executed");
+        vfs.setCurrentDirectory((VFSDirectory) node);
     }
 
     private void handleExit(String[] args) throws EmulatorException {
@@ -105,15 +132,35 @@ public class CommandManager {
         }
 
         ui.showMessage("Available commands:");
-        ui.showMessage("  ls     - List directory contents (заглушка)");
-        ui.showMessage("  cd     - Change directory (заглушка)");
+        ui.showMessage("  pwd    - Print working directory");
+        ui.showMessage("  ls     - List directory contents");
+        ui.showMessage("  cd     - Change directory");
+        ui.showMessage("  date   - Show current date/time");
+        ui.showMessage("  clear  - Clear screen");
         ui.showMessage("  exit   - Exit the emulator");
-        ui.showMessage("  help   - Show this help message\n");
+        ui.showMessage("  help   - Show this help message");
+        ui.showMessage("");
     }
 
     private void handleHelloCat(String[] args) {
         ui.showMessage("  /\\_/\\");
         ui.showMessage(" ( o.o )");
         ui.showMessage("  > ^ <\n");
+    }
+
+    public void handlePWD(String[] args) throws EmulatorException {
+        if (args.length > 0) throw new EmulatorException("pwd: too many arguments");
+        ui.showMessage(vfs.getCurrentPath());
+    }
+
+    private void handleDATE(String[] args) throws EmulatorException {
+        if (args.length > 0) throw new EmulatorException("date: too many arguments");
+        ui.showMessage(new java.util.Date().toString());
+    }
+
+    private void handleCLEAR(String[] args) throws EmulatorException {
+        if (args.length > 0) throw new EmulatorException("clear: too many arguments");
+        ui.showMessage("\033[H\033[2J");
+        System.out.flush();
     }
 }

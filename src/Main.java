@@ -1,4 +1,4 @@
-
+import filesystem.exceptions.VFSException;
 
 public class Main {
     public static void main(String[] args) {
@@ -24,13 +24,21 @@ public class Main {
         System.out.println("Debug: Script path = " + scriptPath);
         System.out.println();
 
+        try {
+            if (vfsPath == null) vfsPath = "./test_basic";
+            ConsoleEmulator vfsEmulator = new ConsoleEmulator(vfsPath);
 
-        ConsoleEmulator vfs = new ConsoleEmulator(vfsPath);
-        if (scriptPath != null) {
-            vfs.executeScript(scriptPath);
-        }
-        else {
-            vfs.startREPL();
+            if (scriptPath != null) {
+                vfsEmulator.executeScript(scriptPath);
+            } else {
+                vfsEmulator.startREPL();
+            }
+        } catch (VFSException e) {
+            System.err.println("VFS initialization failed: " + e.getMessage());
+            System.exit(1);
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            System.exit(1);
         }
     }
 }

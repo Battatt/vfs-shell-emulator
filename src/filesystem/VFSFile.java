@@ -20,6 +20,11 @@ public class VFSFile extends VFSNode{
         return "file";
     }
 
+    @Override
+    public String getInfo() {
+        return "filename: " + getName() + ", size = " + getSize();
+    }
+
     public String getContent() {
         return content;
     }
