@@ -6,47 +6,97 @@ import filesystem.exceptions.VFSPathException;
 public class PathResolver {
 
     public static VFSNode resolvePath(VFS vfs, String pathStr) throws VFSException {
+        return resolvePath(vfs, pathStr, true);
+    }
+
+
+    public static VFSNode resolvePath(VFS vfs, String pathStr, boolean expectDirectory) throws VFSException {
         if (pathStr == null || pathStr.isEmpty()) {
             return vfs.getCurrentDirectory();
         }
 
+        VFSNode node;
         if (pathStr.startsWith("/")) {
-            return resolveAbsolutePath(vfs, pathStr);
+            node = resolveAbsolutePath(vfs, pathStr);
         } else {
-            return resolveRelativePath(vfs, pathStr);
+            node = resolveRelativePath(vfs, pathStr);
         }
+
+        if (expectDirectory && !node.isDirectory()) {
+            throw new VFSException("not a directory: " + pathStr);
+        }
+        if (!expectDirectory && node.isDirectory()) {
+            throw new VFSException("not a file: " + pathStr);
+        }
+
+        return node;
     }
 
     private static VFSNode resolveAbsolutePath(VFS vfs, String pathStr) throws VFSException {
         VFSDirectory current = vfs.getRoot();
         String[] parts = pathStr.split("/");
 
-        for (String part : parts) {
+
+        for (int i = 0; i < parts.length - 1; i++) {
+            String part = parts[i];
             if (part.isEmpty()) continue;
 
             current = resolveDirectoryPart(current, part);
         }
 
-        return current;
+
+        String lastPart = parts[parts.length - 1];
+        if (lastPart.isEmpty()) {
+            return current;
+        }
+
+        VFSNode node = current.getChild(lastPart);
+        if (node == null) {
+            throw new VFSPathException("wrong path: " + lastPart);
+        }
+
+        return node;
     }
 
     private static VFSNode resolveRelativePath(VFS vfs, String pathStr) throws VFSException {
         VFSDirectory current = vfs.getCurrentDirectory();
         String[] parts = pathStr.split("/");
 
-        for (String part : parts) {
-            if (part.isEmpty()) continue;
-
-            if (part.equals(".")) {
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.isEmpty() || part.equals(".")) {
                 continue;
-            } else if (part.equals("..")) {
+            }
+
+            if (part.equals("..")) {
                 if (current.getParent() != null) {
                     current = (VFSDirectory) current.getParent();
                 }
-            } else {
-                current = resolveDirectoryPart(current, part);
+                if (i == parts.length - 1) {
+                    return current;
+                }
+                continue;
             }
+
+
+            VFSNode node = current.getChild(part);
+            if (node == null) {
+                throw new VFSPathException("wrong path: " + part);
+            }
+
+
+            if (i == parts.length - 1) {
+                return node;
+            }
+
+
+            if (!node.isDirectory()) {
+                throw new VFSException("not a directory: " + part);
+            }
+
+            current = (VFSDirectory) node;
         }
+
 
         return current;
     }
@@ -59,7 +109,7 @@ public class PathResolver {
         }
 
         if (!node.isDirectory()) {
-            throw new VFSException("not a dircetory: " + part);
+            throw new VFSException("not a directory: " + part);
         }
 
         return (VFSDirectory) node;

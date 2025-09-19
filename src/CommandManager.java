@@ -1,7 +1,4 @@
-import filesystem.PathResolver;
-import filesystem.VFS;
-import filesystem.VFSDirectory;
-import filesystem.VFSNode;
+import filesystem.*;
 import filesystem.exceptions.VFSException;
 
 import java.io.File;
@@ -83,6 +80,9 @@ public class CommandManager {
                 case "clear":
                     handleCLEAR(args);
                     return true;
+                case "tail":
+                    handleTAIL(args);
+                    return true;
                 default:
                     throw new EmulatorException(command + ": command not found");
             }
@@ -162,5 +162,27 @@ public class CommandManager {
         if (args.length > 0) throw new EmulatorException("clear: too many arguments");
         ui.showMessage("\033[H\033[2J");
         System.out.flush();
+    }
+
+    private void handleTAIL(String[] args) throws EmulatorException, VFSException {
+        if (args.length != 1) throw new EmulatorException("tail: need filename");
+
+        VFSNode node = PathResolver.resolvePath(vfs, args[0], false);
+        if (node.isDirectory()) {
+            throw new EmulatorException("tail: is a directory: " + args[0]);
+        }
+
+        VFSFile file = (VFSFile) node;
+        String content = file.getContent();
+        if (content == null || content.isEmpty()) {
+            ui.showMessage("");
+            return;
+        }
+
+        String[] lines = content.split("\n");
+        int start = Math.max(0, lines.length - 10);
+        for (int i = start; i < lines.length; i++) {
+            ui.showMessage(lines[i]);
+        }
     }
 }
