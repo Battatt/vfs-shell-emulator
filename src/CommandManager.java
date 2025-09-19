@@ -83,6 +83,15 @@ public class CommandManager {
                 case "tail":
                     handleTAIL(args);
                     return true;
+                case "mkdir":
+                    handleMKDIR(args);
+                    return true;
+                case "touch":
+                    handleTOUCH(args);
+                    return true;
+                case "chmod":
+                    handleCHMOD(args);
+                    return true;
                 default:
                     throw new EmulatorException(command + ": command not found");
             }
@@ -94,18 +103,9 @@ public class CommandManager {
 
     private void handleLS(String[] args) throws EmulatorException, VFSException {
         VFSDirectory targetDir = vfs.getCurrentDirectory();
-
-        if (args.length > 0) {
-            VFSNode node = PathResolver.resolvePath(vfs, args[0]);
-            if (!node.isDirectory()) {
-                throw new EmulatorException(args[0] + " is not a directory");
-            }
-            targetDir = (VFSDirectory) node;
-        }
         for (VFSNode child: targetDir.getChildren().values()) {
-            ui.showMessage(child.getInfo());
+            ui.showMessage(child.getDescription());
         }
-
     }
 
     private void handleCD(String[] args) throws EmulatorException, VFSException {
@@ -135,6 +135,10 @@ public class CommandManager {
         ui.showMessage("  pwd    - Print working directory");
         ui.showMessage("  ls     - List directory contents");
         ui.showMessage("  cd     - Change directory");
+        ui.showMessage("  mkdir  - Create directory");
+        ui.showMessage("  touch  - Create file");
+        ui.showMessage("  chmod  - Change file permissions");
+        ui.showMessage("  tail   - Show end of file");
         ui.showMessage("  date   - Show current date/time");
         ui.showMessage("  clear  - Clear screen");
         ui.showMessage("  exit   - Exit the emulator");
@@ -184,5 +188,76 @@ public class CommandManager {
         for (int i = start; i < lines.length; i++) {
             ui.showMessage(lines[i]);
         }
+    }
+
+    private void handleMKDIR(String[] args) throws EmulatorException, VFSException {
+        if (args.length != 1) {
+            throw new EmulatorException("mkdir: need directory name");
+        }
+
+        try {
+            vfs.createDirectory(args[0]);
+            ui.showMessage("Created directory: " + args[0]);
+        } catch (VFSException e) {
+            throw new EmulatorException("mkdir: " + e.getMessage());
+        }
+    }
+
+    private void handleTOUCH(String[] args) throws EmulatorException, VFSException {
+        if (args.length != 1) {
+            throw new EmulatorException("touch: need filename");
+        }
+
+        try {
+            vfs.createFile(args[0], "");
+            ui.showMessage("Created file: " + args[0]);
+        } catch (VFSException e) {
+            throw new EmulatorException("touch: " + e.getMessage());
+        }
+    }
+
+    private void handleCHMOD(String[] args) throws EmulatorException, VFSException {
+        if (args.length != 2) {
+            throw new EmulatorException("chmod: need permissions and path");
+        }
+
+        String permissions = args[0];
+        String path = args[1];
+
+
+        if (!isValidPermissions(permissions)) {
+            throw new EmulatorException("chmod: invalid permissions format: " + permissions);
+        }
+
+        try {
+            VFSNode node = PathResolver.resolvePath(vfs, path, false);
+
+            String finalPermissions = permissions;
+            if (permissions.matches("[0-7]{3}")) {
+                finalPermissions = convertNumericToSymbolic(permissions);
+            }
+
+            node.setPermissions(finalPermissions);
+            ui.showMessage("Changed permissions of " + node.getName() + " to " + finalPermissions);
+
+        } catch (VFSException e) {
+            throw new EmulatorException("chmod: " + e.getMessage());
+        }
+    }
+
+    private boolean isValidPermissions(String permissions) {
+        return permissions.matches("[0-7]{3}") ||
+                permissions.matches("[r-][w-][x-][r-][w-][x-][r-][w-][x-]");
+    }
+
+    private String convertNumericToSymbolic(String numeric) {
+        char[] symbols = new char[9];
+        for (int i = 0; i < 3; i++) {
+            int digit = Character.getNumericValue(numeric.charAt(i));
+            symbols[i*3] = (digit & 4) != 0 ? 'r' : '-';
+            symbols[i*3+1] = (digit & 2) != 0 ? 'w' : '-';
+            symbols[i*3+2] = (digit & 1) != 0 ? 'x' : '-';
+        }
+        return new String(symbols);
     }
 }

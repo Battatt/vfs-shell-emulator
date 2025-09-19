@@ -21,7 +21,7 @@ public class VFSFile extends VFSNode{
     }
 
     @Override
-    public String getInfo() {
+    public String getDescription() {
         return "filename: " + getName() + ", size = " + getSize();
     }
 

@@ -41,7 +41,7 @@ public class VFSDirectory extends VFSNode{
     }
 
     @Override
-    public String getInfo() {
+    public String getDescription() {
         return "directory name: " + getName() + ", size: " + getSize();
     }
 

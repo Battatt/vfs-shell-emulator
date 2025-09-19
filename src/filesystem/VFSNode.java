@@ -5,6 +5,7 @@ public abstract class VFSNode {
     protected VFSNode parent;
     protected long size;
     protected boolean isDirectory;
+    protected String permissions;
 
     public VFSNode(String name, VFSNode parent, boolean isDirectory) {
         setName(name);
@@ -18,6 +19,14 @@ public abstract class VFSNode {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getPermissions() {
+        return permissions;
+    }
+
+    public void setPermissions(String permissions) {
+        this.permissions = permissions;
     }
 
     public VFSNode getParent() {
@@ -38,7 +47,15 @@ public abstract class VFSNode {
 
     public abstract long getSize();
     public abstract String getType();
-    public abstract String getInfo();
+    public abstract String getDescription();
+
+    public String getInfo() {
+        return String.format("%s %s %dB %s",
+                isDirectory() ? "d" : "-",
+                getPermissions(),
+                getSize(),
+                getName());
+    }
 
     @Override
     public String toString() {
