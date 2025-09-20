@@ -83,12 +83,6 @@ public class CommandManager {
                 case "tail":
                     handleTAIL(args);
                     return true;
-                case "mkdir":
-                    handleMKDIR(args);
-                    return true;
-                case "touch":
-                    handleTOUCH(args);
-                    return true;
                 case "chmod":
                     handleCHMOD(args);
                     return true;
@@ -135,8 +129,6 @@ public class CommandManager {
         ui.showMessage("  pwd    - Print working directory");
         ui.showMessage("  ls     - List directory contents");
         ui.showMessage("  cd     - Change directory");
-        ui.showMessage("  mkdir  - Create directory");
-        ui.showMessage("  touch  - Create file");
         ui.showMessage("  chmod  - Change file permissions");
         ui.showMessage("  tail   - Show end of file");
         ui.showMessage("  date   - Show current date/time");
@@ -190,31 +182,6 @@ public class CommandManager {
         }
     }
 
-    private void handleMKDIR(String[] args) throws EmulatorException, VFSException {
-        if (args.length != 1) {
-            throw new EmulatorException("mkdir: need directory name");
-        }
-
-        try {
-            vfs.createDirectory(args[0]);
-            ui.showMessage("Created directory: " + args[0]);
-        } catch (VFSException e) {
-            throw new EmulatorException("mkdir: " + e.getMessage());
-        }
-    }
-
-    private void handleTOUCH(String[] args) throws EmulatorException, VFSException {
-        if (args.length != 1) {
-            throw new EmulatorException("touch: need filename");
-        }
-
-        try {
-            vfs.createFile(args[0], "");
-            ui.showMessage("Created file: " + args[0]);
-        } catch (VFSException e) {
-            throw new EmulatorException("touch: " + e.getMessage());
-        }
-    }
 
     private void handleCHMOD(String[] args) throws EmulatorException, VFSException {
         if (args.length != 2) {
