@@ -1,8 +1,9 @@
 import filesystem.exceptions.VFSException;
 
 public class Main {
-    public static void main(String[] args) {
-        String vfsPath = null;
+    public static void main(String[] args) throws VFSException {
+        // RELEASE
+        String vfsPath = "./test_basic";
         String scriptPath = null;
 
         for (int i = 0; i < args.length; i++) {
@@ -18,27 +19,34 @@ public class Main {
                     i++;
                 }
             }
+            else if (args[i].equals("-help") || args[i].equals("-h")) {
+                printHelp();
+            }
         }
 
-        System.out.println("Debug: VFS path = " + vfsPath);
-        System.out.println("Debug: Script path = " + scriptPath);
+        System.out.println("=== VFS Emulator Configuration ===");
+        System.out.println("VFS path: " + (vfsPath != null ? vfsPath : "not specified"));
+        System.out.println("Script path: " + (scriptPath != null ? scriptPath : "not specified"));
+        System.out.println("===================================");
         System.out.println();
 
-        try {
-            if (vfsPath == null) vfsPath = "./test_basic";
-            ConsoleEmulator vfsEmulator = new ConsoleEmulator(vfsPath);
 
-            if (scriptPath != null) {
-                vfsEmulator.executeScript(scriptPath);
-            } else {
-                vfsEmulator.startREPL();
-            }
-        } catch (VFSException e) {
-            System.err.println("VFS initialization failed: " + e.getMessage());
-            System.exit(1);
-        } catch (Exception e) {
-            System.err.println("Unexpected error: " + e.getMessage());
-            System.exit(1);
+
+
+        ConsoleEmulator vfs = new ConsoleEmulator(vfsPath);
+        if (scriptPath != null) {
+            vfs.executeScript(scriptPath);
         }
+        else {
+            vfs.startREPL();
+        }
+    }
+
+    private static void printHelp() {
+        System.out.println("Usage: java Main [options]");
+        System.out.println("Options:");
+        System.out.println("  -v, -vfs <path>     Path to VFS physical location");
+        System.out.println("  -s, -script <path>  Path to startup script");
+        System.out.println("  -h, -help           Show this help message");
     }
 }
