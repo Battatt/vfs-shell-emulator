@@ -41,6 +41,9 @@ if [ ! -f "testScripts/script.txt" ]; then
 help
 ls
 cd ..
+cd ./folder1
+tail file2.txt
+hello
 clear
 hello
 clear
