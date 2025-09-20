@@ -1,25 +1,40 @@
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class VFSEmulator {
+public class ConsoleEmulator {
     private final Scanner sc;
     private boolean isRunning;
     private final CommandManager commandManager;
     private final ConsoleUI ui;
+    private final String vfsPath;
 
 
-    public VFSEmulator() {
+    public ConsoleEmulator(String vfsPath) {
+        this.vfsPath = vfsPath;
         sc = new Scanner(System.in);
         isRunning = false;
         ui = new ConsoleUI();
         commandManager = new CommandManager(ui);
     }
 
-    public void startREPL() {
-        isRunning = true;
+    public void welcome() {
         ui.showMessage("Welcome to VFS Emulator!");
         ui.showMessage("Type 'help' to see available commands.");
         ui.showMessage("");
+    }
+
+    public void executeScript(String scriptPath) {
+        try {
+            commandManager.executeScript(scriptPath);
+        } catch(EmulatorException e) {
+            ui.showError(e.getMessage());
+            shutdown();
+        }
+    }
+
+    public void startREPL() {
+        isRunning = true;
+        welcome();
         while (isRunning) {
             ui.printPrompt("vfs$ ");
 
