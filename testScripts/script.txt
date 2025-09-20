@@ -1,0 +1,8 @@
+help
+cd hello
+ls
+help
+ls
+ls
+help
+exit
