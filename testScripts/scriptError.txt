@@ -1,0 +1,5 @@
+help
+ls
+unknown_command  # Эта команда вызовет ошибку
+cd /home
+exit
