@@ -2,7 +2,7 @@ import filesystem.exceptions.VFSException;
 
 public class Main {
     public static void main(String[] args) throws VFSException {
-        // RELEASE
+        // RELEASE 2
         String vfsPath = "./test_basic";
         String scriptPath = null;
 
