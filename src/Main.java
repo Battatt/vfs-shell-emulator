@@ -1,5 +1,7 @@
 import filesystem.exceptions.VFSException;
 
+// RELEASE
+
 public class Main {
     public static void main(String[] args) throws VFSException {
         // RELEASE 2
