@@ -1,0 +1,10 @@
+hello
+help
+clear
+date
+ls
+cd ./folder1
+cd ..
+ls
+hello
+exit
