@@ -18,10 +18,15 @@ public class Main {
                     i++;
                 }
             }
+            else if (args[i].equals("-help") || args[i].equals("-h")) {
+                printHelp();
+            }
         }
 
-        System.out.println("Debug: VFS path = " + vfsPath);
-        System.out.println("Debug: Script path = " + scriptPath);
+        System.out.println("=== VFS Emulator Configuration ===");
+        System.out.println("VFS path: " + (vfsPath != null ? vfsPath : "not specified"));
+        System.out.println("Script path: " + (scriptPath != null ? scriptPath : "not specified"));
+        System.out.println("===================================");
         System.out.println();
 
 
@@ -32,5 +37,13 @@ public class Main {
         else {
             vfs.startREPL();
         }
+    }
+
+    private static void printHelp() {
+        System.out.println("Usage: java Main [options]");
+        System.out.println("Options:");
+        System.out.println("  -v, -vfs <path>     Path to VFS physical location");
+        System.out.println("  -s, -script <path>  Path to startup script");
+        System.out.println("  -h, -help           Show this help message");
     }
 }

@@ -31,7 +31,7 @@ public class CommandManager {
 
                 String[] input = line.split("\\s+");
 
-                ui.printPrompt("vfs$ "); // ИЗМЕНИТЬ!
+                ui.printPrompt("vfs$ ");
                 ui.showMessage(line);
 
                 String command = input[0];

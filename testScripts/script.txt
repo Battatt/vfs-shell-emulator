@@ -2,4 +2,7 @@ help
 cd hello
 ls
 help
-ls hello
+ls
+ls
+help
+exit
