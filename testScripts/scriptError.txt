@@ -1,3 +1,5 @@
+help
 ls
-unexpectedCommand
+unknown_command  # Эта команда вызовет ошибку
+cd /home
 exit

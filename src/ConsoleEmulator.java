@@ -1,3 +1,6 @@
+import filesystem.VFS;
+import filesystem.exceptions.VFSException;
+
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -6,15 +9,15 @@ public class ConsoleEmulator {
     private boolean isRunning;
     private final CommandManager commandManager;
     private final ConsoleUI ui;
-    private final String vfsPath;
+    private final VFS vfs;
 
 
-    public ConsoleEmulator(String vfsPath) {
-        this.vfsPath = vfsPath;
+    public ConsoleEmulator(String vfsPath) throws VFSException {
+        this.vfs = new VFS(vfsPath);
         sc = new Scanner(System.in);
         isRunning = false;
         ui = new ConsoleUI();
-        commandManager = new CommandManager(ui);
+        commandManager = new CommandManager(ui, vfs);
     }
 
     public void welcome() {

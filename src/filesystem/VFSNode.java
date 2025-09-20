@@ -38,6 +38,7 @@ public abstract class VFSNode {
 
     public abstract long getSize();
     public abstract String getType();
+    public abstract String getInfo();
 
     @Override
     public String toString() {

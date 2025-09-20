@@ -1,0 +1,9 @@
+pwd
+ls
+cd folder1
+pwd
+ls
+cd ..
+pwd
+ls
+exit

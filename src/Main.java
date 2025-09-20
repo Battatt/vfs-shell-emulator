@@ -1,8 +1,9 @@
+import filesystem.exceptions.VFSException;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws VFSException {
         // RELEASE
-        String vfsPath = null;
+        String vfsPath = "./test_basic";
         String scriptPath = null;
 
         for (int i = 0; i < args.length; i++) {
@@ -28,6 +29,8 @@ public class Main {
         System.out.println("Script path: " + (scriptPath != null ? scriptPath : "not specified"));
         System.out.println("===================================");
         System.out.println();
+
+
 
 
         ConsoleEmulator vfs = new ConsoleEmulator(vfsPath);
