@@ -8,6 +8,7 @@ public class VFSFile extends VFSNode{
         this.content = content;
         if (this.content == null || this.content.isEmpty()) this.size = 0;
         else this.size = content.length();
+        permissions = "rw-r--r--";
     }
 
     @Override
@@ -21,8 +22,8 @@ public class VFSFile extends VFSNode{
     }
 
     @Override
-    public String getInfo() {
-        return "filename: " + getName() + ", size = " + getSize();
+    public String getDescription() {
+        return "f " +getPermissions() + " " + getSize() + " " + getName();
     }
 
     public String getContent() {

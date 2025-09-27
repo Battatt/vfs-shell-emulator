@@ -1,6 +1,6 @@
-#!/bin/bash
+## test_phase5.sh
 
-echo "=== VFS Emulator Test Scripts ==="
+echo "=== VFS Emulator Test Script - Phase 5: Additional Commands ==="
 echo ""
 
 cd ..
@@ -8,7 +8,7 @@ cd ..
 # Создаем папку out если её нет
 mkdir -p out
 
-# Компиляция проекта из папки src - явно указываем все файлы
+# Компиляция проекта
 echo "Компиляция файлов из src/..."
 echo "Содержимое src:"
 ls -la src/
@@ -34,79 +34,130 @@ echo ""
 # Создаем папку testScripts если её нет
 mkdir -p testScripts
 
-# Создаем тестовые скрипты если их нет
-if [ ! -f "testScripts/script.txt" ]; then
-    echo "Создаем script.txt..."
-    cat > testScripts/script.txt << 'EOF'
+# Создаем тестовые скрипты для этапа 5
+echo "Создаем тестовые скрипты для этапа 5..."
+
+# Основной тестовый скрипт с chmod
+cat > testScripts/script_chmod.txt << 'EOF'
 help
+pwd
+ls
+
+chmod 755 file1.txt
+chmod 644 file2.txt
+chmod 777 script.sh
+
+chmod rwxr-xr-x executable
+chmod rw-r--r-- document
+chmod rwxrwxrwx public_file
+
+ls
+
+chmod 888 invalid_file.txt
+chmod abc file1.txt
+chmod 755 non_existent_file
+chmod 755
+chmod
+
+cd folder1
+ls
+chmod 600 file2.txt
 ls
 cd ..
-cd ./folder1
+pwd
+
+exit
+EOF
+
+# Скрипт для тестирования базовой функциональности
+cat > testScripts/script_basic.txt << 'EOF'
+# Базовые команды VFS
+help
+pwd
+ls
+cd folder1
+pwd
+ls
 tail file2.txt
-hello
-clear
-hello
-clear
-date
-exit
-EOF
-fi
-
-if [ ! -f "testScripts/script2.txt" ]; then
-    echo "Создаем script2.txt..."
-    cat > testScripts/script2.txt << 'EOF'
-hello
-help
-clear
-date
-ls
-cd ./folder1
 cd ..
+chmod 666 file1.txt
 ls
-hello
+pwd
+date
+clear
 exit
 EOF
-fi
 
-if [ ! -f "testScripts/scriptError.txt" ]; then
-    echo "Создаем scriptError.txt..."
-    cat > testScripts/scriptError.txt << 'EOF'
+# Скрипт для тестирования обработки ошибок
+cat > testScripts/script_errors.txt << 'EOF'
+# Тестирование обработки ошибок
 help
-ls
-unknown_command  # Эта команда вызовет ошибку
-cd /home
+chmod
+chmod 755
+chmod invalid file1.txt
+chmod 999 file1.txt
+chmod rwx-rwx-rwx file1.txt
+cd non_existent_directory
+tail directory
 exit
 EOF
-fi
 
 echo "Содержимое скриптов:"
-echo "=== script.txt ==="
-cat testScripts/script.txt
+echo "=== script_chmod.txt (основной) ==="
+cat testScripts/script_chmod.txt
 echo ""
-echo "=== script2.txt ==="
-cat testScripts/script2.txt
+echo "=== script_basic.txt ==="
+cat testScripts/script_basic.txt
 echo ""
-echo "=== scriptError.txt ==="
-cat testScripts/scriptError.txt
+echo "=== script_errors.txt ==="
+cat testScripts/script_errors.txt
 echo ""
 
-# Test 1: Basic functionality
+# Создаем тестовую файловую структуру
+echo "Создаем тестовую файловую структуру..."
+mkdir -p test_basic
+mkdir -p test_basic/folder1
+mkdir -p test_basic/folder2
+
+echo "Hello from file1" > test_basic/file1.txt
+echo "Content of file2" > test_basic/file2.txt
+echo "Script content here" > test_basic/script.sh
+echo "File in folder1" > test_basic/folder1/file2.txt
+echo "Another file" > test_basic/folder1/file3.txt
+echo "File in folder2" > test_basic/folder2/file4.txt
+
+echo "Тестовая структура создана:"
+find test_basic -type f
+
+echo ""
+
+# Запускаем тесты
 echo "========================================"
-echo "Test 1: Basic commands"
-java -cp out Main -v ./test_basic -script testScripts/script.txt
-echo ""
-
-# Test 2: Basic functionality
+echo "Test 1: Basic functionality"
 echo "========================================"
-echo "Test 2: Basic commands"
-java -cp out Main -v ./test_basic -script testScripts/script2.txt
+java -cp out Main -v ./test_basic -script testScripts/script_basic.txt
 echo ""
 
-# Test 3: Stop on error
 echo "========================================"
-echo "Test 3: Stop on error behavior"
-java -cp out Main -v ./test_basic -script testScripts/scriptError.txt
+echo "Test 2: chmod command testing"
+echo "========================================"
+java -cp out Main -v ./test_basic -script testScripts/script_chmod.txt
 echo ""
 
-echo "=== All tests completed ==="
+echo "========================================"
+echo "Test 3: Error handling"
+echo "========================================"
+java -cp out Main -v ./test_basic -script testScripts/script_errors.txt
+echo ""
+
+echo "========================================"
+echo "Test 4: Interactive mode (краткий тест)"
+echo "========================================"
+echo "exit" | java -cp out Main -v ./test_basic
+echo ""
+
+echo "=== Все тесты завершены ==="
+echo "✅ Этап 5: Дополнительные команды - ВЫПОЛНЕН"
+echo ""
+
 read -p "Нажмите Enter для выхода..."

@@ -1,0 +1,10 @@
+# Тестирование обработки ошибок
+help
+chmod
+chmod 755
+chmod invalid file1.txt
+chmod 999 file1.txt
+chmod rwx-rwx-rwx file1.txt
+cd non_existent_directory
+tail directory
+exit

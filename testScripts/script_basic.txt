@@ -1,0 +1,15 @@
+# Базовые команды VFS
+help
+pwd
+ls
+cd folder1
+pwd
+ls
+tail file2.txt
+cd ..
+chmod 666 file1.txt
+ls
+pwd
+date
+clear
+exit

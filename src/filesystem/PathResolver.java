@@ -36,60 +36,29 @@ public class PathResolver {
         VFSDirectory current = vfs.getRoot();
         String[] parts = pathStr.split("/");
 
-
-        for (int i = 0; i < parts.length - 1; i++) {
-            String part = parts[i];
-            if (part.isEmpty()) continue;
-
-            current = resolveDirectoryPart(current, part);
+        // Особый случай: путь равен только "/"
+        if (parts.length == 0 || (parts.length == 1 && parts[0].isEmpty())) {
+            return current; // возвращаем корневую директорию
         }
 
-
-        String lastPart = parts[parts.length - 1];
-        if (lastPart.isEmpty()) {
-            return current;
-        }
-
-        VFSNode node = current.getChild(lastPart);
-        if (node == null) {
-            throw new VFSPathException("wrong path: " + lastPart);
-        }
-
-        return node;
-    }
-
-    private static VFSNode resolveRelativePath(VFS vfs, String pathStr) throws VFSException {
-        VFSDirectory current = vfs.getCurrentDirectory();
-        String[] parts = pathStr.split("/");
-
+        // Обрабатываем все части пути
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
-            if (part.isEmpty() || part.equals(".")) {
-                continue;
+            if (part.isEmpty()) {
+                continue; // Пропускаем пустые части
             }
-
-            if (part.equals("..")) {
-                if (current.getParent() != null) {
-                    current = (VFSDirectory) current.getParent();
-                }
-                if (i == parts.length - 1) {
-                    return current;
-                }
-                continue;
-            }
-
 
             VFSNode node = current.getChild(part);
             if (node == null) {
                 throw new VFSPathException("wrong path: " + part);
             }
 
-
+            // Если это последняя часть - возвращаем найденный узел
             if (i == parts.length - 1) {
                 return node;
             }
 
-
+            // Промежуточная часть должна быть директорией
             if (!node.isDirectory()) {
                 throw new VFSException("not a directory: " + part);
             }
@@ -97,21 +66,57 @@ public class PathResolver {
             current = (VFSDirectory) node;
         }
 
+        return current;
+    }
+
+    private static VFSNode resolveRelativePath(VFS vfs, String pathStr) throws VFSException {
+        VFSDirectory current = vfs.getCurrentDirectory();
+        String[] parts = pathStr.split("/");
+
+        // Особый случай: путь пустой или только из слешей
+        if (parts.length == 0 || (parts.length == 1 && parts[0].isEmpty())) {
+            return current; // возвращаем текущую директорию
+        }
+
+        // Обрабатываем все части пути
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.isEmpty()) {
+                continue; // Пропускаем пустые части
+            }
+
+            if (part.equals(".")) {
+                continue;
+            } else if (part.equals("..")) {
+                if (current.getParent() != null) {
+                    current = (VFSDirectory) current.getParent();
+                }
+                // Если это последняя часть - возвращаем директорию
+                if (i == parts.length - 1) {
+                    return current;
+                }
+                continue;
+            }
+
+            VFSNode node = current.getChild(part);
+            if (node == null) {
+                throw new VFSPathException("wrong path: " + part);
+            }
+
+            // Если это последняя часть - возвращаем найденный узел
+            if (i == parts.length - 1) {
+                return node;
+            }
+
+            // Промежуточная часть должна быть директорией
+            if (!node.isDirectory()) {
+                throw new VFSException("not a directory: " + part);
+            }
+
+            current = (VFSDirectory) node;
+        }
 
         return current;
     }
 
-    private static VFSDirectory resolveDirectoryPart(VFSDirectory current, String part) throws VFSException {
-        VFSNode node = current.getChild(part);
-
-        if (node == null) {
-            throw new VFSPathException("wrong path: " + part);
-        }
-
-        if (!node.isDirectory()) {
-            throw new VFSException("not a directory: " + part);
-        }
-
-        return (VFSDirectory) node;
-    }
 }

@@ -18,7 +18,7 @@ public class VFS {
     public VFS(String realPath) throws VFSException {
         if (realPath.isEmpty()) throw new VFSPathException("Empty path");
 
-        this.realRootPath = Paths.get(realPath).toAbsolutePath();
+        this.realRootPath = Paths.get(realPath).toAbsolutePath().normalize();
 
         try {
             if (!Files.exists(realRootPath)) {
@@ -61,49 +61,18 @@ public class VFS {
         }
     }
 
+    private void setBasicPermissions(Path path, String permissions) throws IOException {
+        // Простая установка базовых прав
+        if (permissions.matches("[0-7]{3}")) {
+            int mode = Integer.parseInt(permissions, 8);
+            boolean readable = (mode & 0444) != 0;  // Кто-то может читать
+            boolean writable = (mode & 0222) != 0;  // Кто-то может писать
+            boolean executable = (mode & 0111) != 0; // Кто-то может выполнять
 
-    public VFSFile createFile(String name, String content) throws VFSException {
-        Path realFilePath = realRootPath.resolve(name).normalize();
-        if (!realFilePath.startsWith(realRootPath)) {
-            throw new SecurityException("Attempt to escape root directory");
+            path.toFile().setReadable(readable);
+            path.toFile().setWritable(writable);
+            path.toFile().setExecutable(executable);
         }
-
-        if (currentDirectory.getChild(name) != null) {
-            throw new VFSException("File already exists: " + name);
-        }
-
-        try {
-            if (Files.exists(realFilePath)) {
-                throw new VFSException("File already exists in real FS: " + name);
-            }
-
-            Files.write(realFilePath, content.getBytes());
-        } catch (IOException e) {
-            throw new VFSException("Failed to create file: " + e.getMessage());
-        }
-
-        VFSFile newFile = new VFSFile(name, currentDirectory, content);
-        currentDirectory.addChild(newFile);
-
-        return newFile;
-    }
-
-    public VFSDirectory createDirectory(String name) throws VFSException {
-        Path realDirPath = realRootPath.resolve(name).normalize();
-        if (!realDirPath.startsWith(realRootPath)) {
-            throw new SecurityException("Attempt to escape root directory");
-        }
-
-        try {
-            Files.createDirectories(realDirPath);
-        } catch (IOException e) {
-            throw new VFSPathException(e.getMessage());
-        }
-
-        VFSDirectory newDir = new VFSDirectory(name, currentDirectory);
-        currentDirectory.addChild(newDir);
-
-        return newDir;
     }
 
     public VFSDirectory getRoot() { return root; }
@@ -116,6 +85,16 @@ public class VFS {
 
     private String buildPath(VFSNode node) {
         if (node.getParent() == null) return "/";
-        return buildPath(node.getParent()) + node.getName() + "/";
+
+        StringBuilder path = new StringBuilder();
+        VFSNode current = node;
+
+        // Собираем путь от текущего узла до корня
+        while (current != null && current.getParent() != null) {
+            path.insert(0, "/" + current.getName());
+            current = current.getParent();
+        }
+
+        return path.length() > 0 ? path.toString() : "/";
     }
 }
