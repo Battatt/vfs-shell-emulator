@@ -36,7 +36,7 @@ public class CommandManager {
 
                 String[] input = line.split("\\s+");
 
-                ui.printPrompt("vfs$ "); // ИЗМЕНИТЬ!
+                ui.printPrompt("vfs$ ");
                 ui.showMessage(line);
 
                 String command = input[0];
@@ -197,7 +197,7 @@ public class CommandManager {
         }
 
         try {
-            VFSNode node = PathResolver.resolvePath(vfs, path, false);
+            VFSNode node = PathResolver.resolvePath(vfs, path);
 
             String finalPermissions = permissions;
             if (permissions.matches("[0-7]{3}")) {
@@ -205,6 +205,7 @@ public class CommandManager {
             }
 
             node.setPermissions(finalPermissions);
+            
             ui.showMessage("Changed permissions of " + node.getName() + " to " + finalPermissions);
 
         } catch (VFSException e) {

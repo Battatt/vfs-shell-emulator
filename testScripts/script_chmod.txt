@@ -1,0 +1,28 @@
+help
+pwd
+ls
+
+chmod 755 file1.txt
+chmod 644 file2.txt
+chmod 777 script.sh
+
+chmod rwxr-xr-x executable
+chmod rw-r--r-- document
+chmod rwxrwxrwx public_file
+
+ls
+
+chmod 888 invalid_file.txt
+chmod abc file1.txt
+chmod 755 non_existent_file
+chmod 755
+chmod
+
+cd folder1
+ls
+chmod 600 file2.txt
+ls
+cd ..
+pwd
+
+exit

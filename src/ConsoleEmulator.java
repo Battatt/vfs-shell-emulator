@@ -39,7 +39,7 @@ public class ConsoleEmulator {
         isRunning = true;
         welcome();
         while (isRunning) {
-            ui.printPrompt("vfs$ "); // ИЗМЕНИТЬ НА ПУТЬ К ВИРТУАЛКЕ
+            ui.printPrompt("vfs$ ");
 
             String[] input = sc.nextLine().split("\\s+");
             if (input.length == 0 || input[0].isEmpty()) continue;

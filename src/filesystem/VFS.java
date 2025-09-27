@@ -61,6 +61,20 @@ public class VFS {
         }
     }
 
+    private void setBasicPermissions(Path path, String permissions) throws IOException {
+        // Простая установка базовых прав
+        if (permissions.matches("[0-7]{3}")) {
+            int mode = Integer.parseInt(permissions, 8);
+            boolean readable = (mode & 0444) != 0;  // Кто-то может читать
+            boolean writable = (mode & 0222) != 0;  // Кто-то может писать
+            boolean executable = (mode & 0111) != 0; // Кто-то может выполнять
+
+            path.toFile().setReadable(readable);
+            path.toFile().setWritable(writable);
+            path.toFile().setExecutable(executable);
+        }
+    }
+
     public VFSDirectory getRoot() { return root; }
     public VFSDirectory getCurrentDirectory() { return currentDirectory; }
     public void setCurrentDirectory(VFSDirectory dir) { currentDirectory = dir; }

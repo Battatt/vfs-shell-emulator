@@ -10,6 +10,7 @@ public class VFSDirectory extends VFSNode{
         super(name, parent, true);
         this.children = new HashMap<String, VFSNode>();
         this.size = 0;
+        permissions = "rw-r--r--";
     }
 
     public Map<String, VFSNode> getChildren() {
@@ -42,7 +43,7 @@ public class VFSDirectory extends VFSNode{
 
     @Override
     public String getDescription() {
-        return "directory name: " + getName() + ", size: " + getSize();
+        return "d " + getPermissions() + " " + getSize() + " " + getName();
     }
 
 }
